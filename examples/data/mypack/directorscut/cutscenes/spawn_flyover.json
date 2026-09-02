@@ -1,0 +1,22 @@
+{
+  "durationSeconds": 12,
+  "curve": "CATMULLROM",
+  "easing": "EASE_IN_OUT",
+  "stopMode": "AUTOMATIC",
+  "skippable": true,
+  "keyframes": [
+    [24, 82, 24, -135, 30, 0],
+    { "type": "point", "pos": [0, 90, 0], "lookAt": [0, 64, 0] },
+    { "type": "spiral", "center": [0, 64, 0], "startRadius": 18, "endRadius": 6, "height": 10, "turns": 1, "points": 36 },
+    { "type": "point", "pos": [4, 68, 4], "lookAt": [0, 64, 0], "roll": 0 }
+  ],
+  "sounds": [
+    { "tick": 0, "sound": "minecraft:music_disc.otherside", "category": "music", "id": "theme" },
+    { "second": 6, "sound": "minecraft:entity.lightning_bolt.thunder", "volume": 0.7, "pos": [0, 64, 0] },
+    { "tick": 230, "stop": "theme" }
+  ],
+  "actions": [
+    { "second": 11, "command": "tp @s 0 65 0 -90 0", "alwaysRun": true }
+  ],
+  "next": "mypack:spawn_hold"
+}

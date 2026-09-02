@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "directorscut:block/anchor", "y": 180 },
+    "facing=south": { "model": "directorscut:block/anchor" },
+    "facing=west": { "model": "directorscut:block/anchor", "y": 90 },
+    "facing=east": { "model": "directorscut:block/anchor", "y": 270 }
+  }
+}
