@@ -4,7 +4,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.gradle.userdev' version '7.0.145'
-    id 'me.modmuss50.mod-publish-plugin' version '0.5.1'
+    id 'me.modmuss50.mod-publish-plugin' version '1.1.0'
 }
 
 def snapshotEnv = providers.environmentVariable("SNAPSHOT")
@@ -17,7 +17,10 @@ base {
     archivesName = project.archives_base_name
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    withSourcesJar()
+}
 
 runs {
     configureEach {
@@ -69,6 +72,11 @@ repositories {
     }
 }
 
+configurations {
+    localRuntime
+    runtimeClasspath.extendsFrom localRuntime
+}
+
 configurations.configureEach {
     resolutionStrategy.eachDependency { details ->
         if (details.requested.group == "org.ow2.asm") {
@@ -80,7 +88,7 @@ configurations.configureEach {
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_full_version}"
     compileOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
-    runtimeOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}") {
+    localRuntime("dev.latvian.mods:kubejs-neoforge:${kubejs_version}") {
         exclude group: "org.ow2.asm"
     }
 }
@@ -119,14 +127,14 @@ publishing {
         }
     }
     repositories {
-        def naniteSecret = providers.environmentVariable("NANITE_TOKEN")
-        if (naniteSecret.isPresent()) {
-            maven {
-                url "https://maven.nanite.dev/${isSnapshot ? "snapshots" : "releases"}"
-                credentials {
-                    username = "nanite"
-                    password = naniteSecret.get()
-                }
+        maven {
+            name = "BreakInBlocks"
+            url = isSnapshot ?
+                "https://maven.breakinblocks.com/snapshots" :
+                "https://maven.breakinblocks.com/releases"
+            credentials {
+                username = System.getenv("MAVEN_USER") ?: ""
+                password = System.getenv("MAVEN_TOKEN") ?: ""
             }
         }
     }
@@ -134,25 +142,47 @@ publishing {
 
 publishMods {
     dryRun = providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
-    changelog = file("./CHANGELOG.md").text
+    file = jar.archiveFile
+    changelog = file("CHANGELOG.md").text
     version = project.version
-    file = project.provider { project.tasks.jar }.flatMap { it.archiveFile }
-    modLoaders.add("neoforge")
     type = STABLE
-    displayName = "[${minecraft_version}] ${mod_name} ${project.version}"
+    modLoaders.add("neoforge")
+    displayName = "[${minecraft_version}] ${mod_name} ${mod_version}"
 
     curseforge {
-        projectId = providers.environmentVariable("CURSEFORGE_ID").orElse("0")
+        projectId = "1679326"
+        projectSlug = "directors-camera"
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        minecraftVersions.add("${minecraft_version}")
+        minecraftVersions.add(minecraft_version)
         javaVersions.add(JavaVersion.VERSION_21)
+        clientRequired = true
+        serverRequired = true
         optional("kubejs")
     }
 
-    modrinth {
-        projectId = providers.environmentVariable("MODRINTH_ID").orElse("0")
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        minecraftVersions.add("${minecraft_version}")
-        optional("kubejs")
+    def modrinthId = providers.environmentVariable("MODRINTH_ID").getOrNull()
+    if (modrinthId != null) {
+        modrinth {
+            projectId = modrinthId
+            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+            minecraftVersions.add(minecraft_version)
+            optional("kubejs")
+        }
     }
+}
+
+tasks.register('publishMaven') {
+    description = 'Publishes the mod JAR and sources JAR to the BreakInBlocks Maven repository.'
+    group = 'publishing'
+    dependsOn 'publishMavenJavaPublicationToBreakInBlocksRepository'
+}
+
+tasks.register('publishMod') {
+    description = 'Publishes the mod to CurseForge and the BreakInBlocks Maven repository.'
+    group = 'publishing'
+    dependsOn 'publishMods', 'publishMaven'
+}
+
+tasks.named('publishMods') {
+    finalizedBy 'publishMaven'
 }
