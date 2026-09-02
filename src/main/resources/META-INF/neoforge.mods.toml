@@ -12,7 +12,7 @@ Server-driven camera cutscenes, screen shake, timed sounds, hold-to-skip and a d
 '''
 
 [[mixins]]
-config = "directorscut.mixins.json"
+config = "directorscamera.mixins.json"
 
 [[dependencies.${mod_id}]]
 modId = "neoforge"
@@ -31,6 +31,6 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "kubejs"
 type = "optional"
-versionRange = "[2101.7.0,)"
+versionRange = "[26.1.2-8.0.0,)"
 ordering = "AFTER"
 side = "BOTH"

@@ -1,0 +1,33 @@
+package com.breakinblocks.directorscamera.registry;
+
+import com.breakinblocks.directorscamera.DirectorsCamera;
+import com.breakinblocks.directorscamera.camera.ClientCameraEntity;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+@EventBusSubscriber(modid = DirectorsCamera.MOD_ID)
+public class ModEntities {
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, DirectorsCamera.MOD_ID);
+
+    public static final DeferredHolder<EntityType<?>, EntityType<ClientCameraEntity>> CLIENT_CAMERA = ENTITY_TYPES.register("client_camera",
+        () -> EntityType.Builder.<ClientCameraEntity>of(ClientCameraEntity::new, MobCategory.MISC)
+            .updateInterval(1)
+            .sized(0.2F, 0.2F)
+            .eyeHeight(0.0F)
+            .noSave()
+            .noSummon()
+            .build(ResourceKey.create(Registries.ENTITY_TYPE, DirectorsCamera.id("client_camera"))));
+
+    @SubscribeEvent
+    public static void addAttributes(EntityAttributeCreationEvent event) {
+        event.put(CLIENT_CAMERA.get(), LivingEntity.createLivingAttributes().build());
+    }
+}

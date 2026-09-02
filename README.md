@@ -1,10 +1,10 @@
-# DirectorsCut
+# Director's Camera
 
-Server-driven camera cutscenes for NeoForge 1.21.1. The server describes a camera path, sends it to one or more clients, and each client plays it on a dedicated camera entity while player input is suppressed. On top of that the mod provides timed sounds, hold-to-skip, screen shake, a director's camera item for recording paths in game, data-driven cutscene definitions, a Bedrock-style keyframe animation system with an expression engine, and a KubeJS API.
+Server-driven camera cutscenes for NeoForge 26.1.2. The server describes a camera path, sends it to one or more clients, and each client plays it on a dedicated camera entity while player input is suppressed. On top of that the mod provides timed sounds, hold-to-skip, screen shake, a director's camera item for recording paths in game, data-driven cutscene definitions, a Bedrock-style keyframe animation system with an expression engine, and a KubeJS API.
 
-- Minecraft 1.21.1, NeoForge 21.1.199 or newer, Java 21
-- KubeJS 2101.7 or newer is optional; the scripting API only appears when it is installed
-- Mod id `directorscut`
+- Minecraft 26.1.2, NeoForge 26.1.2 or newer, Java 25
+- KubeJS 26.1.2-8.0 or newer is optional; the scripting API only appears when it is installed
+- Mod id `directorscamera`
 
 Example scripts and data files are in [`examples/`](examples/README.md).
 
@@ -32,7 +32,7 @@ Example scripts and data files are in [`examples/`](examples/README.md).
 |---|---|
 | `AUTOMATIC` (default) | Ends by itself when the path finishes. |
 | `PLAYER` | Holds the last shot until the player skips (hold jump) or presses the end-cutscene key (J by default). |
-| `UNSTOPPABLE` | Cannot be skipped by the player; ends only from the server (`stop`, `/directorscut fix`, logout). |
+| `UNSTOPPABLE` | Cannot be skipped by the player; ends only from the server (`stop`, `/directorscamera fix`, logout). |
 
 **Hold-to-skip.** Any skippable cutscene ends when the player holds their jump key for 1.5 seconds. A progress bar and hint appear in the lower right. Skipping abandons the whole chain and runs any server actions flagged `alwaysRun` that have not fired yet, so teleports and stage changes still happen.
 
@@ -48,38 +48,38 @@ All commands require permission level 2 except `capture` and `fix`.
 
 | Command | Effect |
 |---|---|
-| `/directorscut play <id> [targets]` | Play a registered definition for the targets (default: you). |
-| `/directorscut stop [targets]` | Stop and cancel sessions. |
-| `/directorscut list` | List registered definition ids. |
-| `/directorscut fix` | Emergency stop for yourself (works in `UNSTOPPABLE` mode). |
-| `/directorscut capture` | Print your current camera pose as an `.addPoint(...)` line and copy it to the clipboard. |
-| `/directorscut capture start`, `add`, `print`, `clear` | Build a scratch path pose by pose and print it as a script. |
-| `/directorscut camera export` | Copy the held camera recording as a KubeJS script. |
-| `/directorscut camera export json` | Copy it as a definition JSON file. |
-| `/directorscut camera save <id>` | Register the held recording under an id and store it with the world, so it survives restarts. |
-| `/directorscut delete <id>` | Remove a cutscene saved with `camera save`. |
-| `/directorscut export <id\|all> [json\|script]` | Write a definition to `<game dir>/directorscut/export/` as a datapack file (default) or a KubeJS script. |
-| `/directorscut import <file\|all>` | Load JSON definitions from `<game dir>/directorscut/import/` and store them with the world. |
-| `/directorscut camera load <id>` | Replace the held recording with a registered definition. |
-| `/directorscut camera name <id>` | Name the recording without saving. |
-| `/directorscut camera roll <index> <degrees>` | Set the roll of one keyframe (1-based). |
-| `/directorscut camera insert <index>` | Insert your current pose before a keyframe. |
-| `/directorscut camera curve\|easing\|timeEasing\|lookEasing <value>` | Edit the recording settings. |
-| `/directorscut camera duration <ticks\|auto>` | Set the recording duration. |
-| `/directorscut camera anchor <id>` | Convert the held recording to coordinates relative to the nearest anchor with that id. |
-| `/directorscut camera anchor clear` | Convert an anchored recording back to world coordinates. |
-| `/directorscut playanchored <id> <anchor> [targets]` | Play a definition relative to the nearest anchor with that id. |
-| `/directorscut anchor set <id>` | Set the id of the anchor block you are looking at. |
-| `/directorscut anchor trigger <cutscene> <radius> [once] [cooldown]` | Make that anchor play a cutscene when players come within the radius. |
-| `/directorscut anchor trigger clear`, `reset`, `info`, `list` | Remove the trigger, clear its per-player history, describe it, or list anchor ids in the dimension. |
+| `/directorscamera play <id> [targets]` | Play a registered definition for the targets (default: you). |
+| `/directorscamera stop [targets]` | Stop and cancel sessions. |
+| `/directorscamera list` | List registered definition ids. |
+| `/directorscamera fix` | Emergency stop for yourself (works in `UNSTOPPABLE` mode). |
+| `/directorscamera capture` | Print your current camera pose as an `.addPoint(...)` line and copy it to the clipboard. |
+| `/directorscamera capture start`, `add`, `print`, `clear` | Build a scratch path pose by pose and print it as a script. |
+| `/directorscamera camera export` | Copy the held camera recording as a KubeJS script. |
+| `/directorscamera camera export json` | Copy it as a definition JSON file. |
+| `/directorscamera camera save <id>` | Register the held recording under an id and store it with the world, so it survives restarts. |
+| `/directorscamera delete <id>` | Remove a cutscene saved with `camera save`. |
+| `/directorscamera export <id\|all> [json\|script]` | Write a definition to `<game dir>/directorscamera/export/` as a datapack file (default) or a KubeJS script. |
+| `/directorscamera import <file\|all>` | Load JSON definitions from `<game dir>/directorscamera/import/` and store them with the world. |
+| `/directorscamera camera load <id>` | Replace the held recording with a registered definition. |
+| `/directorscamera camera name <id>` | Name the recording without saving. |
+| `/directorscamera camera roll <index> <degrees>` | Set the roll of one keyframe (1-based). |
+| `/directorscamera camera insert <index>` | Insert your current pose before a keyframe. |
+| `/directorscamera camera curve\|easing\|timeEasing\|lookEasing <value>` | Edit the recording settings. |
+| `/directorscamera camera duration <ticks\|auto>` | Set the recording duration. |
+| `/directorscamera camera anchor <id>` | Convert the held recording to coordinates relative to the nearest anchor with that id. |
+| `/directorscamera camera anchor clear` | Convert an anchored recording back to world coordinates. |
+| `/directorscamera playanchored <id> <anchor> [targets]` | Play a definition relative to the nearest anchor with that id. |
+| `/directorscamera anchor set <id>` | Set the id of the anchor block you are looking at. |
+| `/directorscamera anchor trigger <cutscene> <radius> [once] [cooldown]` | Make that anchor play a cutscene when players come within the radius. |
+| `/directorscamera anchor trigger clear`, `reset`, `info`, `list` | Remove the trigger, clear its per-player history, describe it, or list anchor ids in the dimension. |
 
-Ids are resource locations. A bare name such as `test` is read as `directorscut:test`; add your own namespace (`mypack:test`) when you want one.
+Ids are resource locations. A bare name such as `test` is read as `directorscamera:test`; add your own namespace (`mypack:test`) when you want one.
 
-**Export and import.** `export` writes `directorscut/export/data/<namespace>/directorscut/cutscenes/<path>.json` next to a `pack.mcmeta`, so the whole `export` folder can be dropped into `world/datapacks/` or its `data` folder into `kubejs/data/`; `export <id> script` writes a KubeJS script under `directorscut/export/kubejs/server_scripts/` instead. `import` reads any `.json` under `directorscut/import/`; a file at `import/<namespace>/<path>.json` keeps that id, anything else gets the `directorscut` namespace. Imported cutscenes are saved with the world like `camera save`. Exports contain keyframes, settings, anchors, sounds and command actions; script callbacks cannot be exported.
+**Export and import.** `export` writes `directorscamera/export/data/<namespace>/directorscamera/cutscenes/<path>.json` next to a `pack.mcmeta`, so the whole `export` folder can be dropped into `world/datapacks/` or its `data` folder into `kubejs/data/`; `export <id> script` writes a KubeJS script under `directorscamera/export/kubejs/server_scripts/` instead. `import` reads any `.json` under `directorscamera/import/`; a file at `import/<namespace>/<path>.json` keeps that id, anything else gets the `directorscamera` namespace. Imported cutscenes are saved with the world like `camera save`. Exports contain keyframes, settings, anchors, sounds and command actions; script callbacks cannot be exported.
 
 ## Director's camera item
 
-`directorscut:directors_camera` (Tools and Utilities tab) records camera paths without typing coordinates. The recording is stored on the item, so recordings can be copied and handed around.
+`directorscamera:directors_camera` (Tools and Utilities tab) records camera paths without typing coordinates. The recording is stored on the item, so recordings can be copied and handed around.
 
 | Input | Action |
 |---|---|
@@ -92,7 +92,7 @@ Ids are resource locations. A bare name such as `test` is read as `directorscut:
 
 While the item is held, every keyframe shows a numbered marker, a look-direction line and the interpolated path. The marker under your crosshair turns green.
 
-Typical workflow: walk the shot, right-click at each camera position, left-click to preview, then `/directorscut camera export` and paste the script into your pack, or `/directorscut camera save mypack:intro` and play it by id.
+Typical workflow: walk the shot, right-click at each camera position, left-click to preview, then `/directorscamera camera export` and paste the script into your pack, or `/directorscamera camera save mypack:intro` and play it by id.
 
 ## Anchors and relative cutscenes
 
@@ -106,22 +106,22 @@ Frame sources, chosen with `anchored(...)` on a definition or `"anchor"` in a da
 | Fixed frame | `anchoredTo(x, y, z, yaw)` | Exactly that frame. Use it when the code that placed a structure already knows the origin. |
 | Player | `anchoredToPlayer()` | The player's position and facing at play time. |
 | Structure | `anchoredToStructure()` or `anchoredToStructure("minecraft:ancient_city")` | The template origin and rotation of the world-generated structure the player is standing in. |
-| Virtual anchor | `DirectorsCut.registerAnchor(level, id, x, y, z, yaw)` | Script-registered frames that the anchor lookup treats like blocks (not persisted). |
+| Virtual anchor | `DirectorsCamera.registerAnchor(level, id, x, y, z, yaw)` | Script-registered frames that the anchor lookup treats like blocks (not persisted). |
 
 Two flags adapt the entry and exit to the player: `startFromPlayer()` prepends the player's current eye pose as the first keyframe so the shot flies in from wherever they stand, and `endAtPlayer()` appends it so the camera hands back without a cut. Chained cutscenes inherit the resolved frame.
 
-**Cutscene Anchor block** (`directorscut:anchor`, Tools and Utilities tab). Invisible, non-colliding and unbreakable in survival; visible as a cyan box with a facing arrow and label to creative players and to anyone holding a director's camera. Its facing sets the frame yaw (placed facing the way you look). It keeps its settings inside structure templates, so put one in a room template and every placed copy carries it. Right-click it to see its settings. Configure it while looking at it:
+**Cutscene Anchor block** (`directorscamera:anchor`, Tools and Utilities tab). Invisible, non-colliding and unbreakable in survival; visible as a cyan box with a facing arrow and label to creative players and to anyone holding a director's camera. Its facing sets the frame yaw (placed facing the way you look). It keeps its settings inside structure templates, so put one in a room template and every placed copy carries it. Right-click it to see its settings. Configure it while looking at it:
 
-- `/directorscut anchor set throne_room` gives it an id.
-- `/directorscut anchor trigger mypack:throne_room 6 true 0` plays that cutscene, anchored to this block, when a player comes within 6 blocks, once per player, no cooldown. `once false` with a cooldown in ticks replays it. The trigger radius is drawn as a red box while visible.
+- `/directorscamera anchor set throne_room` gives it an id.
+- `/directorscamera anchor trigger mypack:throne_room 6 true 0` plays that cutscene, anchored to this block, when a player comes within 6 blocks, once per player, no cooldown. `once false` with a cooldown in ticks replays it. The trigger radius is drawn as a red box while visible.
 
-**Authoring an anchored path.** Stand in the room, record with the director's camera as usual, then `/directorscut camera anchor throne_room`. The recording converts to anchor space, previews still play correctly, the markers draw relative to the nearest anchor (walk to another copy of the room to check it), and `camera export` adds `.anchored("throne_room")` to the script.
+**Authoring an anchored path.** Stand in the room, record with the director's camera as usual, then `/directorscamera camera anchor throne_room`. The recording converts to anchor space, previews still play correctly, the markers draw relative to the nearest anchor (walk to another copy of the room to check it), and `camera export` adds `.anchored("throne_room")` to the script.
 
-Inside server actions, `DirectorsCut.frameOf(player)` returns the frame the running cutscene was resolved with, and `frame.pos(x, y, z)` converts a local offset to a world position for teleports or effects.
+Inside server actions, `DirectorsCamera.frameOf(player)` returns the frame the running cutscene was resolved with, and `frame.pos(x, y, z)` converts a local offset to a world position for teleports or effects.
 
 ## Data-driven definitions
 
-Files at `data/<namespace>/directorscut/cutscenes/<id>.json` are loaded on every data reload and register as `<namespace>:<id>`. Script-registered definitions with the same id override them.
+Files at `data/<namespace>/directorscamera/cutscenes/<id>.json` are loaded on every data reload and register as `<namespace>:<id>`. Script-registered definitions with the same id override them.
 
 ```json
 {
@@ -158,7 +158,7 @@ Relative definitions add `"anchor"` (an anchor id string, or an object such as `
 
 ## KubeJS API
 
-Everything is reachable through the `DirectorsCut` global in server scripts (and, for the client events and expression helpers, client scripts).
+Everything is reachable through the `DirectorsCamera` global in server scripts (and, for the client events and expression helpers, client scripts).
 
 ### Global functions
 
@@ -227,7 +227,7 @@ All setters return the builder.
 
 | Method | Description |
 |---|---|
-| `addPoint(x, y, z, yaw?, pitch?, roll?)` | Raw keyframe; the format `/directorscut capture` prints. |
+| `addPoint(x, y, z, yaw?, pitch?, roll?)` | Raw keyframe; the format `/directorscamera capture` prints. |
 | `addVec3(vec, yaw?, pitch?, roll?)` | Same from a vector. |
 | `addEntity(entity, ox?, oy?, oz?)` | Keyframe at the entity's eyes with its look angles. |
 | `addLookingAt(x, y, z, tx, ty, tz, roll?)` | Keyframe facing a target. |
@@ -257,18 +257,18 @@ Look easing shapes each keyframe segment, not the path as a whole, so a spin, or
 ### Server events
 
 ```js
-DirectorsCutEvents.register(event => {
+DirectorsCameraEvents.register(event => {
     const intro = event.create("mypack:intro");
     intro.setDurationSeconds(8).getPath().addOrbit(0, 70, 0, 10, 0, 360, 20);
 });
 
-DirectorsCutEvents.beforePlay(event => {
+DirectorsCameraEvents.beforePlay(event => {
     if (event.player.level.dimension != "minecraft:overworld") event.cancel();
 });
 
-DirectorsCutEvents.started(event => console.log(`${event.player.username} started ${event.id}`));
-DirectorsCutEvents.tick(event => { if (event.tick == 100) event.player.tell("halfway"); });
-DirectorsCutEvents.ended(event => { if (event.skipped) event.player.tell("skipped"); });
+DirectorsCameraEvents.started(event => console.log(`${event.player.username} started ${event.id}`));
+DirectorsCameraEvents.tick(event => { if (event.tick == 100) event.player.tell("halfway"); });
+DirectorsCameraEvents.ended(event => { if (event.skipped) event.player.tell("skipped"); });
 ```
 
 `register` fires after server scripts load (including `/reload`), so definitions created there are always current. `beforePlay` exposes `player`, `level`, `id` and `cutscene` (a copy you may edit); cancelling blocks playback. `started`, `tick` and `ended` expose `player`, `level`, `id`, plus `tick`/`seconds` and `reason`/`finished`/`skipped` respectively.
@@ -276,36 +276,36 @@ DirectorsCutEvents.ended(event => { if (event.skipped) event.player.tell("skippe
 ### Client events
 
 ```js
-DirectorsCutClientEvents.started(event => console.log("cutscene " + event.id));
-DirectorsCutClientEvents.ended(event => console.log(event.id + " " + event.reason));
+DirectorsCameraClientEvents.started(event => console.log("cutscene " + event.id));
+DirectorsCameraClientEvents.ended(event => console.log(event.id + " " + event.reason));
 ```
 
 ## Keyframe animations
 
 The `keyframe` package is a Bedrock-style animation system usable on its own: per-bone position, rotation and scale channels, linear or Catmull-Rom keyframes with `pre`/`post` values, loop modes, blended transitions, and a ticker with speed, reverse and partial-tick sampling. Keyframe values may be expressions.
 
-Animations load from `data/<namespace>/directorscut/animations/<file>.json`. A Blockbench export with an `animations` object registers each entry as `<namespace>:<file>/<name>`; a file containing a single animation object registers as `<namespace>:<file>`. They sync to clients automatically. Add `"bedrock_conventions": false` at the top of a file to keep raw axis signs instead of Bedrock's X and Y flips.
+Animations load from `data/<namespace>/directorscamera/animations/<file>.json`. A Blockbench export with an `animations` object registers each entry as `<namespace>:<file>/<name>`; a file containing a single animation object registers as `<namespace>:<file>`. They sync to clients automatically. Add `"bedrock_conventions": false` at the top of a file to keep raw axis signs instead of Bedrock's X and Y flips.
 
-Because this mod has no bone models, animations are applied to a pose object. `DirectorsCut.pose()` creates bones on demand; `pose.cameraPos("camera", origin)` turns a bone into a camera keyframe (position offsets in blocks, rotation X as pitch, Y as yaw, Z as roll).
+Because this mod has no bone models, animations are applied to a pose object. `DirectorsCamera.pose()` creates bones on demand; `pose.cameraPos("camera", origin)` turns a bone into a camera keyframe (position offsets in blocks, rotation X as pitch, Y as yaw, Z as roll).
 
 ```js
-const system = DirectorsCut.animationSystem();
-system.startAnimation("main", DirectorsCut.ticker("mypack:camera/orbit").setLoopMode("LOOP").setSpeed(1.5).build());
+const system = DirectorsCamera.animationSystem();
+system.startAnimation("main", DirectorsCamera.ticker("mypack:camera/orbit").setLoopMode("LOOP").setSpeed(1.5).build());
 
-const pose = DirectorsCut.pose();
+const pose = DirectorsCamera.pose();
 system.tick();
 system.applyAnimations(pose, 0);
-const cam = pose.cameraPos("camera", DirectorsCut.vec(0, 64, 0));
+const cam = pose.cameraPos("camera", DirectorsCamera.vec(0, 64, 0));
 ```
 
 `startAnimation` blends from the current pose into the new animation, `stopAnimation` fades back to rest over the ticker's to-null time, and `setVariable(name, value)` feeds expression variables. Expressions support `+ - * /`, parentheses, unary minus, `query.anim_time` (seconds), `math.pi` and the `math.*` functions (`abs`, `sin`, `cos`, `asin`, `acos`, `atan`, `atan2`, `sqrt`, `pow`, `exp`, `ln`, `floor`, `ceil`, `round`, `trunc`, `min`, `max`, `clamp`, `lerp`, `mod`, `random`). Trigonometry is in degrees.
 
 ## Screen shake
 
-`DirectorsCut.shake(level, x, y, z, radius, DirectorsCut.shakeData(2, 6, 4, 0.15, 1))` applies a random screen-plane translation to every player within the radius. `positionedShake` instead tilts the view toward the point with a falloff over the radius. Shakes do not move the held item.
+`DirectorsCamera.shake(level, x, y, z, radius, DirectorsCamera.shakeData(2, 6, 4, 0.15, 1))` applies a random screen-plane translation to every player within the radius. `positionedShake` instead tilts the view toward the point with a falloff over the radius. Shakes do not move the held item.
 
 ## Configuration
 
-Client (`config/directorscut-client.toml`): `showSkipHint` shows the resting hold-to-skip hint; `closeScreenOnStart` closes any open screen when a cutscene starts. Server (`serverconfig/directorscut-server.toml`): `startTimeoutTicks` is how long a session waits for the client's start confirmation.
+Client (`config/directorscamera-client.toml`): `showSkipHint` shows the resting hold-to-skip hint; `closeScreenOnStart` closes any open screen when a cutscene starts. Server (`serverconfig/directorscamera-server.toml`): `startTimeoutTicks` is how long a session waits for the client's start confirmation.
 
 The end-cutscene key defaults to J and only ends `PLAYER` mode cutscenes; hold-to-skip is the intended way to skip.

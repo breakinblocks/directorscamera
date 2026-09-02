@@ -1,1 +1,1 @@
-com.breakinblocks.directorscut.kubejs.DirectorsCutKubeJSPlugin
+com.breakinblocks.directorscamera.kubejs.DirectorsCameraKubeJSPlugin
