@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "directorscamera:block/anchor", "y": 180 },
+    "facing=south": { "model": "directorscamera:block/anchor" },
+    "facing=west": { "model": "directorscamera:block/anchor", "y": 90 },
+    "facing=east": { "model": "directorscamera:block/anchor", "y": 270 }
+  }
+}

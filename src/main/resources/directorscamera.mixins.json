@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.breakinblocks.directorscamera.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "mixins": [],
+  "client": [
+    "GameRendererMixin",
+    "KeyboardInputMixin",
+    "LocalPlayerMixin",
+    "MouseHandlerAccessor",
+    "MouseHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "durationSeconds": 20,
+  "curve": "LINEAR",
+  "easing": "LINEAR",
+  "stopMode": "PLAYER",
+  "loop": true,
+  "keyframes": [
+    { "type": "panorama", "pos": [0, 80, 0], "turns": 1, "pitch": 10 }
+  ]
+}

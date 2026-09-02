@@ -1,0 +1,9 @@
+{
+  "durationSeconds": 3,
+  "curve": "LINEAR",
+  "easing": "EASE_OUT",
+  "stopMode": "PLAYER",
+  "keyframes": [
+    { "type": "spin", "pos": [0, 68, 0], "startYaw": -90, "endYaw": -60, "pitch": 5, "points": 4 }
+  ]
+}

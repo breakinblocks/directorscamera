@@ -1,0 +1,158 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.gradle.userdev' version '7.0.145'
+    id 'me.modmuss50.mod-publish-plugin' version '0.5.1'
+}
+
+def snapshotEnv = providers.environmentVariable("SNAPSHOT")
+def isSnapshot = snapshotEnv.isPresent() && snapshotEnv.get().toBoolean()
+
+version = "${minecraft_version}-${mod_version}${isSnapshot ? "-SNAPSHOT" : ""}"
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
+        modSource project.sourceSets.main
+    }
+
+    client {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+    }
+
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        programArgument '--nogui'
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        name = "KubeJS"
+        url "https://maven.saps.dev/minecraft"
+        content {
+            includeGroup "dev.latvian.mods"
+            includeGroup "dev.latvian.apps"
+        }
+    }
+    maven {
+        name = "Latvian"
+        url "https://maven.latvian.dev/releases"
+        content {
+            includeGroup "dev.latvian.mods"
+            includeGroup "dev.latvian.apps"
+        }
+    }
+    maven {
+        name = "JitPack"
+        url "https://jitpack.io"
+        content {
+            includeGroup "com.github.rtyley"
+        }
+    }
+    maven {
+        url "https://maven.architectury.dev"
+        content {
+            includeGroup "dev.architectury"
+        }
+    }
+}
+
+configurations.configureEach {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == "org.ow2.asm") {
+            details.useVersion("9.7")
+        }
+    }
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neoforge_full_version}"
+    compileOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+    runtimeOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}") {
+        exclude group: "org.ow2.asm"
+    }
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            neoforge_loader_version: neoforge_loader_version,
+            neo_version_range      : neo_version_range,
+            version                : version,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_author             : mod_author
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        def naniteSecret = providers.environmentVariable("NANITE_TOKEN")
+        if (naniteSecret.isPresent()) {
+            maven {
+                url "https://maven.nanite.dev/${isSnapshot ? "snapshots" : "releases"}"
+                credentials {
+                    username = "nanite"
+                    password = naniteSecret.get()
+                }
+            }
+        }
+    }
+}
+
+publishMods {
+    dryRun = providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
+    changelog = file("./CHANGELOG.md").text
+    version = project.version
+    file = project.provider { project.tasks.jar }.flatMap { it.archiveFile }
+    modLoaders.add("neoforge")
+    type = STABLE
+    displayName = "[${minecraft_version}] ${mod_name} ${project.version}"
+
+    curseforge {
+        projectId = providers.environmentVariable("CURSEFORGE_ID").orElse("0")
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add("${minecraft_version}")
+        javaVersions.add(JavaVersion.VERSION_21)
+        optional("kubejs")
+    }
+
+    modrinth {
+        projectId = providers.environmentVariable("MODRINTH_ID").orElse("0")
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        minecraftVersions.add("${minecraft_version}")
+        optional("kubejs")
+    }
+}
