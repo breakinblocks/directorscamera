@@ -6,7 +6,7 @@ Drop the `kubejs/` and `data/` folders into a pack instance (the data files can 
 |---|---|
 | `kubejs/server_scripts/directorscamera/01_basic_cutscene.js` | Building a cutscene in a command with raw points and `addEntity`, then playing it. |
 | `kubejs/server_scripts/directorscamera/02_registered_cutscenes.js` | Registering named definitions in `DirectorsCameraEvents.register`, chaining with `setNext`, adding a preset, playing by id. |
-| `kubejs/server_scripts/directorscamera/03_sounds_actions_chaining.js` | Music with a handle, positional and camera-attached sounds, timed server actions, `alwaysRun`, `PLAYER` stop mode, `onEnd` and `onSkip`. |
+| `kubejs/server_scripts/directorscamera/03_sounds_actions_chaining.js` | Music with a handle, positional and camera-attached sounds, screen effects, timed server actions, `alwaysRun`, `PLAYER` stop mode, `onEnd` and `onSkip`. |
 | `kubejs/server_scripts/directorscamera/04_events.js` | `beforePlay` cancellation and per-player tweaks, `started`, `tick`, `ended`. |
 | `kubejs/server_scripts/directorscamera/05_presets_and_nearby_players.js` | The presets, playing for everyone within a radius, positioned screen shake. |
 | `kubejs/server_scripts/directorscamera/06_camera_item_recordings.js` | Playing the recording on a held director's camera with extra sounds, and writing a generated path onto the held camera. |

@@ -1,3 +1,8 @@
+# 1.0.1
+
+- Timed screen effects: `fadeToBlack`, `fadeToWhite` and `screenEffect` on a definition, a `screenEffects` list in definition JSON, drawn above the suppressed HUD and below the skip bar.
+- Chromatic aberration as a timed screen effect, `chromaticAberration(tick, strength, fadeIn, hold, fadeOut)`, running as a post-processing pass over the world.
+
 # 1.0.0
 
 - Initial release: server-driven camera cutscenes, screen shake, timed sounds, hold-to-skip, the director's camera recording item, named cutscene definitions from data files, and the KubeJS API.

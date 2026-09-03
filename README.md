@@ -22,7 +22,7 @@ Example scripts and data files are in [`examples/`](examples/README.md).
 
 ## Concepts
 
-**Cutscene definition.** A list of camera keyframes (position, yaw, pitch, roll), a duration in ticks, a curve type, two easings, a stop mode, a skippable flag, a loop flag, optional timed sounds, optional timed server actions, and an optional next cutscene to chain into. Definitions are reusable: build one, play it for as many players as you like.
+**Cutscene definition.** A list of camera keyframes (position, yaw, pitch, roll), a duration in ticks, a curve type, two easings, a stop mode, a skippable flag, a loop flag, optional timed sounds, optional timed screen effects, optional timed server actions, and an optional next cutscene to chain into. Definitions are reusable: build one, play it for as many players as you like.
 
 **Keyframes and curves.** The camera position is interpolated through the keyframes with either straight lines (`LINEAR`) or a Catmull-Rom spline (`CATMULLROM`, the default). Rotation is interpolated per segment with shortest-arc yaw. Time easing (`LINEAR`, `EASE_IN`, `EASE_OUT`, `EASE_IN_OUT`) retimes the whole cutscene; look easing shapes the rotation inside each segment. Duration `auto` derives the length from the path distance at walking speed.
 
@@ -140,6 +140,11 @@ Files at `data/<namespace>/directorscamera/cutscenes/<id>.json` are loaded on ev
     { "type": "panorama", "pos": [0, 70, 0], "turns": 1, "pitch": 10, "startYaw": 0 },
     { "type": "arc", "start": [0, 64, 0], "end": [20, 64, 0], "height": 6, "points": 10 }
   ],
+  "screenEffects": [
+    { "tick": 0, "color": "#000000", "fadeIn": 0, "hold": 5, "fadeOut": 15 },
+    { "second": 10, "red": 1, "green": 0.9, "blue": 0.7, "alpha": 0.6, "fadeIn": 10, "hold": 0, "fadeOut": 20 },
+    { "second": 4, "type": "chromatic", "strength": 0.04, "fadeIn": 10, "hold": 5, "fadeOut": 20 }
+  ],
   "sounds": [
     { "tick": 0, "sound": "minecraft:music_disc.otherside", "category": "music", "id": "theme" },
     { "second": 3, "sound": "minecraft:entity.ender_dragon.growl", "volume": 0.8, "pos": [0, 64, 0] },
@@ -153,6 +158,8 @@ Files at `data/<namespace>/directorscamera/cutscenes/<id>.json` are loaded on ev
 ```
 
 Keyframe entries are either `[x, y, z, yaw, pitch, roll]` arrays (trailing values optional) or generator objects (`point`, `orbit`, `spin`, `panorama`, `arc`, `spiral`). `duration` (ticks) or `durationSeconds` sets the length; omit both for `auto`. `next` is another definition id or an inline definition object. Actions run as commands from the player at permission level 2.
+
+Screen effect entries take `tick` or `second`, then `fadeIn`, `hold` and `fadeOut` in ticks. A `"type"` of `color` (the default) takes a colour as either `color` (`#RRGGBB` or `#RRGGBBAA`) or separate `red`/`green`/`blue`/`alpha` floats in 0 to 1. A `"type"` of `chromatic` takes `strength` instead; setting `strength` without a `type` is read as chromatic.
 
 Relative definitions add `"anchor"` (an anchor id string, or an object such as `{ "type": "player" }`, `{ "type": "structure", "id": "minecraft:ancient_city" }`, or `{ "type": "fixed", "pos": [0, 64, 0], "yaw": 90 }`), plus optional `"anchorMaxDistance"`, `"startFromPlayer"` and `"endAtPlayer"`. Keyframes and sound positions are then offsets from the frame.
 
@@ -214,6 +221,9 @@ All setters return the builder.
 | `startFromPlayer()`, `endAtPlayer()` | Prepend or append the player's current pose at play time. |
 | `executeAt(ticks, fn, { alwaysRun })`, `executeAtSecond(seconds, fn, { alwaysRun })` | Server action at a time; `fn(player)`. |
 | `execute(fn)` | Server action when the camera reaches the last keyframe added so far. |
+| `screenEffect(tick, r, g, b, a, fadeIn, hold, fadeOut)`, `screenEffectAtSecond(seconds, ...)` | Timed full-screen colour wash. Channels are 0 to 1, times in ticks. |
+| `fadeToBlack(tick, fadeIn, hold, fadeOut)`, `fadeToWhite(tick, fadeIn, hold, fadeOut)` | Screen effect shorthands, each with an `AtSecond` variant. |
+| `chromaticAberration(tick, strength, fadeIn, hold, fadeOut)`, `chromaticAberrationAtSecond(seconds, ...)` | Radial colour fringing, strength 0 to 0.5. |
 | `sound(tick, id, options?)`, `soundAtSecond(seconds, id, options?)` | Timed sound. Options: `volume`, `pitch`, `category`, `pos` or `x`/`y`/`z`, `attachToCamera`, `stopOnEnd`, `id`. |
 | `stopSound(tick, handle)`, `stopSoundAtSecond(seconds, handle)` | Stop a sound started with an `id`. |
 | `music(tick, id, options?)` | Non-positional music-category sound that pauses vanilla music. |
@@ -299,6 +309,25 @@ const cam = pose.cameraPos("camera", DirectorsCamera.vec(0, 64, 0));
 ```
 
 `startAnimation` blends from the current pose into the new animation, `stopAnimation` fades back to rest over the ticker's to-null time, and `setVariable(name, value)` feeds expression variables. Expressions support `+ - * /`, parentheses, unary minus, `query.anim_time` (seconds), `math.pi` and the `math.*` functions (`abs`, `sin`, `cos`, `asin`, `acos`, `atan`, `atan2`, `sqrt`, `pow`, `exp`, `ln`, `floor`, `ceil`, `round`, `trunc`, `min`, `max`, `clamp`, `lerp`, `mod`, `random`). Trigonometry is in degrees.
+
+## Screen effects
+
+A definition can wash the screen with a colour on the camera timeline, which is how a shot fades to black before a teleport or flashes white on an explosion.
+
+```js
+scene.fadeToBlack(0, 0, 5, 15);
+scene.fadeToBlack(scene.getDuration() - 20, 20, 0, 0);
+scene.screenEffectAtSecond(6, 1, 0.9, 0.7, 0.6, 10, 0, 20);
+scene.chromaticAberrationAtSecond(4, 0.04, 10, 5, 20);
+```
+
+Each effect starts at its own tick and runs `fadeIn` ticks up to its peak, holds for `hold`, then falls back to nothing over `fadeOut`. A `fadeIn` of 0 snaps straight to full. Effects are independent, so overlapping ones blend, and they are evaluated from the timeline rather than fired once, so they stay correct through a loop and through partial ticks.
+
+Colour effects draw above the world and above the suppressed HUD, but below the hold-to-skip bar, so a player can still see how to leave a shot that has faded out.
+
+**Chromatic aberration** is a post-processing pass rather than an overlay, so it applies to the world only and runs before the HUD is drawn. Strength is the radial offset at the screen edge, clamped to 0.5; useful values are small, around 0.01 for a hint and 0.05 for an obvious split. When several chromatic effects overlap the strongest one wins rather than stacking, since stacked passes would just blur. The pass costs nothing while no chromatic effect is active, because it is skipped entirely at zero strength, and the post chain is only built the first time one runs. If the chain fails to load the effect turns itself off and logs once, leaving the rest of the cutscene intact.
+
+Effects are part of the definition, so they survive `export`, `import`, `camera save` and anchoring.
 
 ## Screen shake
 

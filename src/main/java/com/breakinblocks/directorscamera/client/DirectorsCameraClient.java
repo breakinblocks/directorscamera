@@ -7,6 +7,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import org.lwjgl.glfw.GLFW;
@@ -19,6 +21,7 @@ public class DirectorsCameraClient {
         eventBus.addListener(DirectorsCameraClient::registerKeyMappings);
         eventBus.addListener(DirectorsCameraClient::registerRenderers);
         eventBus.addListener(DirectorsCameraClient::registerGuiLayers);
+        eventBus.addListener(DirectorsCameraClient::registerReloadListeners);
     }
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
@@ -30,7 +33,12 @@ public class DirectorsCameraClient {
         event.registerBlockEntityRenderer(ModBlockEntities.ANCHOR.get(), AnchorRenderer::new);
     }
 
+    private static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) manager -> ChromaticAberrationEffect.reset());
+    }
+
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(ScreenEffectOverlay.ID, new ScreenEffectOverlay());
         event.registerAboveAll(SkipBarLayer.ID, new SkipBarLayer());
     }
 

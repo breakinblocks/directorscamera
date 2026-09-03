@@ -67,6 +67,13 @@ public final class CutsceneJsonWriter {
             keyframes.add(entry);
         }
         json.add("keyframes", keyframes);
+        if (!def.getScreenEffects().isEmpty()) {
+            JsonArray effects = new JsonArray();
+            for (CutsceneScreenEffect effect : def.getScreenEffects()) {
+                effects.add(CutsceneScreenEffect.CODEC.encodeStart(JsonOps.INSTANCE, effect).getOrThrow());
+            }
+            json.add("screenEffects", effects);
+        }
         if (!def.getSounds().isEmpty()) {
             JsonArray sounds = new JsonArray();
             for (CutsceneSound sound : def.getSounds()) {

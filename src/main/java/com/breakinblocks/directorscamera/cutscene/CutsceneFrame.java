@@ -72,7 +72,7 @@ public record CutsceneFrame(Vec3 origin, float yaw) {
         for (CutsceneSound sound : data.sounds()) {
             sounds.add(toWorld(sound));
         }
-        return new CutsceneData(List.copyOf(keyframes), data.duration(), data.curve(), data.timeEasing(), data.lookEasing(), data.stopMode(), data.skippable(), data.loop(), List.copyOf(sounds), data.id());
+        return new CutsceneData(List.copyOf(keyframes), data.duration(), data.curve(), data.timeEasing(), data.lookEasing(), data.stopMode(), data.skippable(), data.loop(), data.screenEffects(), List.copyOf(sounds), data.id());
     }
 
     public List<CameraPos> toLocal(List<CameraPos> world) {

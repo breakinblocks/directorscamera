@@ -10,6 +10,11 @@
     { "type": "spiral", "center": [0, 64, 0], "startRadius": 18, "endRadius": 6, "height": 10, "turns": 1, "points": 36 },
     { "type": "point", "pos": [4, 68, 4], "lookAt": [0, 64, 0], "roll": 0 }
   ],
+  "screenEffects": [
+    { "tick": 0, "color": "#000000", "fadeIn": 0, "hold": 0, "fadeOut": 20 },
+    { "second": 11, "color": "#000000", "fadeIn": 20, "hold": 0, "fadeOut": 0 },
+    { "second": 6, "type": "chromatic", "strength": 0.03, "fadeIn": 5, "hold": 5, "fadeOut": 20 }
+  ],
   "sounds": [
     { "tick": 0, "sound": "minecraft:music_disc.otherside", "category": "music", "id": "theme" },
     { "second": 6, "sound": "minecraft:entity.lightning_bolt.thunder", "volume": 0.7, "pos": [0, 64, 0] },

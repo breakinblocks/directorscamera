@@ -118,6 +118,23 @@ public class CutsceneJsonLoader extends SimpleJsonResourceReloadListener {
                 parseKeyframe(def.getPath(), element);
             }
         }
+        if (json.has("screenEffects")) {
+            for (JsonElement element : GsonHelper.getAsJsonArray(json, "screenEffects")) {
+                JsonObject obj = element.getAsJsonObject();
+                if (obj.has("second") && !obj.has("tick")) {
+                    obj.addProperty("tick", (int) Math.floor(obj.get("second").getAsDouble() * 20));
+                }
+                if (obj.has("color")) {
+                    applyColor(obj, GsonHelper.getAsString(obj, "color"));
+                }
+                if (obj.has("strength") && !obj.has("type")) {
+                    obj.addProperty("type", ScreenEffectType.CHROMATIC.getSerializedName());
+                }
+                CutsceneScreenEffect effect = CutsceneScreenEffect.CODEC.parse(JsonOps.INSTANCE, obj)
+                    .getOrThrow(msg -> new IllegalArgumentException("Bad screen effect entry in " + id + ": " + msg));
+                def.addScreenEffect(effect);
+            }
+        }
         if (json.has("sounds")) {
             for (JsonElement element : GsonHelper.getAsJsonArray(json, "sounds")) {
                 JsonObject obj = element.getAsJsonObject();
@@ -214,5 +231,26 @@ public class CutsceneJsonLoader extends SimpleJsonResourceReloadListener {
     private static void runCommand(ServerPlayer player, String command) {
         CommandSourceStack source = player.createCommandSourceStack().withPermission(2).withSuppressedOutput();
         player.server.getCommands().performPrefixedCommand(source, command);
+    }
+
+    private static void applyColor(JsonObject obj, String value) {
+        String hex = value.startsWith("#") ? value.substring(1) : value;
+        if (hex.length() != 6 && hex.length() != 8) {
+            throw new IllegalArgumentException("Screen effect color must be #RRGGBB or #RRGGBBAA, got: " + value);
+        }
+        int rgb;
+        try {
+            rgb = (int) Long.parseLong(hex, 16);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Screen effect color is not hexadecimal: " + value);
+        }
+        if (hex.length() == 8) {
+            obj.addProperty("alpha", ((rgb >> 24) & 0xFF) / 255.0F);
+            rgb = rgb & 0xFFFFFF;
+        }
+        obj.addProperty("red", ((rgb >> 16) & 0xFF) / 255.0F);
+        obj.addProperty("green", ((rgb >> 8) & 0xFF) / 255.0F);
+        obj.addProperty("blue", (rgb & 0xFF) / 255.0F);
+        obj.remove("color");
     }
 }
