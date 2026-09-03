@@ -140,10 +140,28 @@ publishing {
     }
 }
 
+def latestChangelog = {
+    def started = false
+    def section = []
+    for (String line : file("CHANGELOG.md").readLines()) {
+        if (line.startsWith("# ")) {
+            if (started) {
+                break
+            }
+            started = true
+            continue
+        }
+        if (started) {
+            section.add(line)
+        }
+    }
+    return section.join("\n").trim()
+}
+
 publishMods {
     dryRun = providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
     file = jar.archiveFile
-    changelog = file("CHANGELOG.md").text
+    changelog = latestChangelog()
     version = project.version
     type = STABLE
     modLoaders.add("neoforge")
