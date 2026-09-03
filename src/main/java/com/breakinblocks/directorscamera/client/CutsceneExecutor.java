@@ -40,6 +40,11 @@ public class CutsceneExecutor {
         elapsed++;
     }
 
+    public float effectTime(float partialTick) {
+        float time = Math.max(0.0F, elapsed - 1 + partialTick);
+        return looping() ? time % data.duration() : time;
+    }
+
     public boolean hasEnded() {
         return !looping() && elapsed > data.duration() + 1;
     }

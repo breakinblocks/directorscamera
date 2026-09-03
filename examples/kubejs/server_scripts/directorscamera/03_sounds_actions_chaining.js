@@ -12,6 +12,9 @@ function bossReveal(player, bossX, bossY, bossZ) {
         .addLookingAt(bossX - 6, bossY + 3, bossZ, bossX, bossY + 2, bossZ);
 
     approach
+        .fadeToBlack(0, 0, 5, 20)
+        .screenEffectAtSecond(5, 1, 1, 1, 0.8, 1, 0, 12)
+        .chromaticAberrationAtSecond(4.5, 0.05, 10, 4, 25)
         .music(0, "minecraft:music_disc.pigstep", { volume: 0.6, id: "theme" })
         .soundAtSecond(4.5, "minecraft:entity.ender_dragon.growl", { pos: [bossX, bossY, bossZ], volume: 1.2 })
         .soundAtSecond(5.5, "minecraft:entity.wither.spawn", { attachToCamera: true, pos: [bossX, bossY, bossZ] })

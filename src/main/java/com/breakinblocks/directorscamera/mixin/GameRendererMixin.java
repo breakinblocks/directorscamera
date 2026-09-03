@@ -1,5 +1,6 @@
 package com.breakinblocks.directorscamera.mixin;
 
+import com.breakinblocks.directorscamera.client.ChromaticAberrationEffect;
 import com.breakinblocks.directorscamera.client.ShakeHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
@@ -26,5 +27,13 @@ public class GameRendererMixin {
     @Inject(method = "renderLevel", at = @At("HEAD"))
     private void directorscamera$renderLevel(DeltaTracker deltaTracker, CallbackInfo ci) {
         ShakeHandler.beforeLevel();
+    }
+
+    @Inject(
+        method = "render",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;doEntityOutline()V", shift = At.Shift.AFTER)
+    )
+    private void directorscamera$chromaticAberration(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
+        ChromaticAberrationEffect.process(deltaTracker.getGameTimeDeltaPartialTick(false));
     }
 }

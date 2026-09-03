@@ -19,6 +19,7 @@ public record CutsceneData(
     StopMode stopMode,
     boolean skippable,
     boolean loop,
+    List<CutsceneScreenEffect> screenEffects,
     List<CutsceneSound> sounds,
     String id
 ) {
@@ -31,6 +32,7 @@ public record CutsceneData(
         StopMode.CODEC.optionalFieldOf("stopMode", StopMode.AUTOMATIC).forGetter(CutsceneData::stopMode),
         Codec.BOOL.optionalFieldOf("skippable", true).forGetter(CutsceneData::skippable),
         Codec.BOOL.optionalFieldOf("loop", false).forGetter(CutsceneData::loop),
+        CutsceneScreenEffect.CODEC.listOf().optionalFieldOf("screenEffects", List.of()).forGetter(CutsceneData::screenEffects),
         CutsceneSound.CODEC.listOf().optionalFieldOf("sounds", List.of()).forGetter(CutsceneData::sounds),
         Codec.STRING.optionalFieldOf("id", "").forGetter(CutsceneData::id)
     ).apply(instance, CutsceneData::new));
@@ -42,11 +44,11 @@ public record CutsceneData(
     }
 
     public CutsceneData withKeyframes(List<CameraPos> newKeyframes) {
-        return new CutsceneData(List.copyOf(newKeyframes), duration, curve, timeEasing, lookEasing, stopMode, skippable, loop, sounds, id);
+        return new CutsceneData(List.copyOf(newKeyframes), duration, curve, timeEasing, lookEasing, stopMode, skippable, loop, screenEffects, sounds, id);
     }
 
     public CutsceneData withId(String newId) {
-        return new CutsceneData(keyframes, duration, curve, timeEasing, lookEasing, stopMode, skippable, loop, sounds, newId == null ? "" : newId);
+        return new CutsceneData(keyframes, duration, curve, timeEasing, lookEasing, stopMode, skippable, loop, screenEffects, sounds, newId == null ? "" : newId);
     }
 
     private static void write(FriendlyByteBuf buf, CutsceneData data) {
@@ -61,6 +63,10 @@ public record CutsceneData(
         buf.writeEnum(data.stopMode);
         buf.writeBoolean(data.skippable);
         buf.writeBoolean(data.loop);
+        buf.writeInt(data.screenEffects.size());
+        for (CutsceneScreenEffect effect : data.screenEffects) {
+            CutsceneScreenEffect.STREAM_CODEC.encode(buf, effect);
+        }
         buf.writeInt(data.sounds.size());
         for (CutsceneSound sound : data.sounds) {
             CutsceneSound.STREAM_CODEC.encode(buf, sound);
@@ -81,12 +87,17 @@ public record CutsceneData(
         StopMode stopMode = buf.readEnum(StopMode.class);
         boolean skippable = buf.readBoolean();
         boolean loop = buf.readBoolean();
+        int effectCount = buf.readInt();
+        List<CutsceneScreenEffect> screenEffects = new ArrayList<>(effectCount);
+        for (int i = 0; i < effectCount; i++) {
+            screenEffects.add(CutsceneScreenEffect.STREAM_CODEC.decode(buf));
+        }
         int soundCount = buf.readInt();
         List<CutsceneSound> sounds = new ArrayList<>(soundCount);
         for (int i = 0; i < soundCount; i++) {
             sounds.add(CutsceneSound.STREAM_CODEC.decode(buf));
         }
         String id = buf.readUtf();
-        return new CutsceneData(List.copyOf(keyframes), duration, curve, timeEasing, lookEasing, stopMode, skippable, loop, List.copyOf(sounds), id);
+        return new CutsceneData(List.copyOf(keyframes), duration, curve, timeEasing, lookEasing, stopMode, skippable, loop, List.copyOf(screenEffects), List.copyOf(sounds), id);
     }
 }

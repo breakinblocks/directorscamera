@@ -33,6 +33,7 @@ public class CutsceneDefinition {
     private CutsceneDefinition next;
     private String nextId = "";
     private final List<CutsceneAction> actions = new ArrayList<>();
+    private final List<CutsceneScreenEffect> screenEffects = new ArrayList<>();
     private final List<CutsceneSound> sounds = new ArrayList<>();
     private final List<CutsceneEndCallback> endCallbacks = new ArrayList<>();
     private final List<CutsceneCallback> skipCallbacks = new ArrayList<>();
@@ -264,6 +265,47 @@ public class CutsceneDefinition {
         return this;
     }
 
+    public CutsceneDefinition screenEffect(int tick, double red, double green, double blue, double alpha, int fadeIn, int hold, int fadeOut) {
+        screenEffects.add(CutsceneScreenEffect.of(tick, red, green, blue, alpha, fadeIn, hold, fadeOut));
+        return this;
+    }
+
+    public CutsceneDefinition screenEffectAtSecond(double seconds, double red, double green, double blue, double alpha, int fadeIn, int hold, int fadeOut) {
+        return screenEffect((int) Math.floor(seconds * 20), red, green, blue, alpha, fadeIn, hold, fadeOut);
+    }
+
+    public CutsceneDefinition fadeToBlack(int tick, int fadeIn, int hold, int fadeOut) {
+        screenEffects.add(CutsceneScreenEffect.black(tick, fadeIn, hold, fadeOut));
+        return this;
+    }
+
+    public CutsceneDefinition fadeToBlackAtSecond(double seconds, int fadeIn, int hold, int fadeOut) {
+        return fadeToBlack((int) Math.floor(seconds * 20), fadeIn, hold, fadeOut);
+    }
+
+    public CutsceneDefinition fadeToWhite(int tick, int fadeIn, int hold, int fadeOut) {
+        screenEffects.add(CutsceneScreenEffect.white(tick, fadeIn, hold, fadeOut));
+        return this;
+    }
+
+    public CutsceneDefinition fadeToWhiteAtSecond(double seconds, int fadeIn, int hold, int fadeOut) {
+        return fadeToWhite((int) Math.floor(seconds * 20), fadeIn, hold, fadeOut);
+    }
+
+    public CutsceneDefinition chromaticAberration(int tick, double strength, int fadeIn, int hold, int fadeOut) {
+        screenEffects.add(CutsceneScreenEffect.chromatic(tick, strength, fadeIn, hold, fadeOut));
+        return this;
+    }
+
+    public CutsceneDefinition chromaticAberrationAtSecond(double seconds, double strength, int fadeIn, int hold, int fadeOut) {
+        return chromaticAberration((int) Math.floor(seconds * 20), strength, fadeIn, hold, fadeOut);
+    }
+
+    public CutsceneDefinition addScreenEffect(CutsceneScreenEffect effect) {
+        screenEffects.add(effect);
+        return this;
+    }
+
     public CutsceneDefinition sound(int tick, String soundId) {
         return sound(tick, soundId, null);
     }
@@ -367,6 +409,10 @@ public class CutsceneDefinition {
         return actions;
     }
 
+    public List<CutsceneScreenEffect> getScreenEffects() {
+        return screenEffects;
+    }
+
     public List<CutsceneSound> getSounds() {
         return sounds;
     }
@@ -391,7 +437,14 @@ public class CutsceneDefinition {
             }
         }
         sorted.sort(Comparator.comparingInt(CutsceneSound::tick));
-        return new CutsceneData(List.copyOf(path.getKeyframes()), total, curve, timeEasing, lookEasing, stopMode, skippable, loop, List.copyOf(sorted), id);
+        List<CutsceneScreenEffect> effects = new ArrayList<>(screenEffects);
+        for (CutsceneScreenEffect effect : effects) {
+            if (effect.tick() > total) {
+                throw new IllegalStateException("Screen effect at tick " + effect.tick() + " is beyond the cutscene duration of " + total);
+            }
+        }
+        effects.sort(Comparator.comparingInt(CutsceneScreenEffect::tick));
+        return new CutsceneData(List.copyOf(path.getKeyframes()), total, curve, timeEasing, lookEasing, stopMode, skippable, loop, List.copyOf(effects), List.copyOf(sorted), id);
     }
 
     public static CutsceneDefinition fromData(CutsceneData data) {
@@ -405,6 +458,7 @@ public class CutsceneDefinition {
         def.stopMode = data.stopMode();
         def.skippable = data.skippable();
         def.loop = data.loop();
+        def.screenEffects.addAll(data.screenEffects());
         def.sounds.addAll(data.sounds());
         return def;
     }
@@ -423,6 +477,7 @@ public class CutsceneDefinition {
         copy.next = next;
         copy.nextId = nextId;
         copy.actions.addAll(actions);
+        copy.screenEffects.addAll(screenEffects);
         copy.sounds.addAll(sounds);
         copy.endCallbacks.addAll(endCallbacks);
         copy.skipCallbacks.addAll(skipCallbacks);

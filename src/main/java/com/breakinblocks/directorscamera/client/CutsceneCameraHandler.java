@@ -266,7 +266,7 @@ public final class CutsceneCameraHandler {
 
     @SubscribeEvent
     public static void onRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
-        if (isCutsceneActive() && !event.getName().equals(SkipBarLayer.ID)) {
+        if (isCutsceneActive() && !event.getName().equals(SkipBarLayer.ID) && !event.getName().equals(ScreenEffectOverlay.ID)) {
             event.setCanceled(true);
         }
     }
